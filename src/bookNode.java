@@ -109,7 +109,44 @@ class RedBlackTree{
         insertFix(z);
     }
     private void insertFix(bookNode k){
-
+        bookNode gparent;
+        while(!isNIL(k.parent)&&k.parent.color==Color.RED){
+            gparent=k.parent.parent;
+            if(k.parent==gparent.left){
+                bookNode uncle=gparent.right;
+                if(!isNIL(uncle)&&uncle.color==Color.RED){
+                    uncle.color=Color.BLACK;
+                    k.parent.color=Color.BLACK;
+                    gparent.color=Color.RED;
+                    k=gparent;
+                } else {
+                    if(k.parent.right==k){
+                        k=k.parent;
+                        leftRotate(k);
+                    }
+                    k.parent.color=Color.BLACK;
+                    gparent.color=Color.RED;
+                    rightRotate(gparent);
+                }
+            }else{
+                bookNode uncle=gparent.left;
+                if(!isNIL(uncle)&&uncle.color==Color.RED){
+                    uncle.color=Color.BLACK;
+                    k.parent.color=Color.BLACK;
+                    gparent.color=Color.RED;
+                    k=gparent;
+                }else{
+                    if(k.parent.left==k){
+                        k=k.parent;
+                        rightRotate(k);
+                    }
+                    k.parent.color=Color.BLACK;
+                    gparent.color=Color.RED;
+                    leftRotate(gparent);
+                }
+            }
+            root.color=Color.BLACK;
+        }
     }
     public boolean isNIL(bookNode root){
         return root==nil;
