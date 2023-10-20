@@ -2,7 +2,7 @@
  * ReservationHeap: Implement Binary Min-heap for managing book reservations and waitlists for
  * the book ordered by the patron’s priority which is an integer. (Priority 1 has precedence over
  * Priority 2 and so on). Ties need be broken by considering the timestamp at which the reservation
- * was made (first come first serve basis). Every node of the Min-heap should contain (patronID,
+ * was made (first came and first served basis). Every node of the Min-heap should contain (patronID,
  * priorityNumber, timeOfReservation)
  * Note*:
  * - Assume that each waitlist is limited to 20.
