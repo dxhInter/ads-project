@@ -52,7 +52,7 @@ class RedBlackTree{
             y.left.parent=x;
         }
         y.parent=x.parent;
-        if(isNIL(x.parent)){
+        if(checkNIL(x.parent)){
             root=y;
         }else {
             if(x.parent.left==x)
@@ -70,7 +70,7 @@ class RedBlackTree{
             x.right.parent=y;
         }
         x.parent=y.parent;
-        if(isNIL(y.parent)) {
+        if(checkNIL(y.parent)) {
             root = x;
         }else {
             if (y.parent.right == y) {
@@ -85,7 +85,7 @@ class RedBlackTree{
     private void insert(bookNode z){
         bookNode y=nil;
         bookNode x=root;
-        while(!isNIL(root)){
+        while(!checkNIL(root)){
             y=x;
             if(z.bookID<x.bookID){
                 x=x.left;
@@ -94,7 +94,7 @@ class RedBlackTree{
             }
         }
         z.parent=y;
-        if(!isNIL(y)){
+        if(!checkNIL(y)){
             if(z.bookID<y.bookID){
                 y.left=z;
             }else{
@@ -110,11 +110,11 @@ class RedBlackTree{
     }
     private void insertFix(bookNode k){
         bookNode gparent;
-        while(!isNIL(k.parent)&&k.parent.color==Color.RED){
+        while(!checkNIL(k.parent)&&k.parent.color==Color.RED){
             gparent=k.parent.parent;
             if(k.parent==gparent.left){
                 bookNode uncle=gparent.right;
-                if(!isNIL(uncle)&&uncle.color==Color.RED){
+                if(!checkNIL(uncle)&&uncle.color==Color.RED){
                     uncle.color=Color.BLACK;
                     k.parent.color=Color.BLACK;
                     gparent.color=Color.RED;
@@ -130,7 +130,7 @@ class RedBlackTree{
                 }
             }else{
                 bookNode uncle=gparent.left;
-                if(!isNIL(uncle)&&uncle.color==Color.RED){
+                if(!checkNIL(uncle)&&uncle.color==Color.RED){
                     uncle.color=Color.BLACK;
                     k.parent.color=Color.BLACK;
                     gparent.color=Color.RED;
@@ -148,7 +148,7 @@ class RedBlackTree{
             root.color=Color.BLACK;
         }
     }
-    public boolean isNIL(bookNode root){
+    public boolean checkNIL(bookNode root){
         return root==nil;
     }
 }
