@@ -1,4 +1,7 @@
-import java.util.Objects;
+import java.util.*;
+import java.io.*;
+
+import static java.lang.System.exit;
 
 /***
  *  1. PrintBook(bookID): Print information about a specific book identified by its unique bookID(e.g., title, author, availability status). Note*: If not found, Print “BookID not found in the Library”
@@ -92,13 +95,13 @@ public class test {
     }
     private static void printDetails(bookNode node){
         System.out.println("BookID = "+node.bookID);
-        System.out.println("Title = "+node.bookName);
-        System.out.println("Author = "+node.authorName);
-        System.out.println("Availability = " + (Objects.equals(node.availabilityStatus, "Yes") ? "Yes" : "No"));
+        System.out.println("Title = \""+node.bookName+"\"");
+        System.out.println("Author = \""+node.authorName+"\"");
+        System.out.println("Availability = \"" + (Objects.equals(node.availabilityStatus, "Yes") ? "Yes" : "No")+ "\"");
         if(node.borrowedBy!=-1){
             System.out.println("BorrowedBy = "+node.borrowedBy);
         }else {
-            System.out.println("BorrowedBy ="+"");
+            System.out.println("BorrowedBy = "+"None");
         }
         System.out.print("ReservationHeap = ");
         if(node.minHeap!=null&&!node.minHeap.isEmpty()){
@@ -116,18 +119,78 @@ public class test {
     }
     public void quit() {
         System.out.println("Program Terminated!!");
+        exit(0);
+    }
+    public void testIntance(test temp){
+        temp.insertBook(1,"book1","author1","Yes");
+        temp.printBook(1);
+        temp.borrowBook(101,1,1);
+        temp.insertBook(2,"book2","author2","Yes");
+        temp.borrowBook(102,1,2);
+        temp.printBooks(1,2);
+        temp.returnBook(101,1);
+        temp.quit();
+    }
+    public void chooseFunction(String line){
+        if(line.startsWith("InsertBook(")&&line.endsWith(")")) {
+            String[] command = line.substring(11, line.length() - 1).split(", ");
+            int bookID = Integer.parseInt(command[0].trim());
+            String bookName = command[1].trim().replace("\"", "");//delete "
+            String authorName = command[2].trim().replace("\"", "");
+            String availabilityStatus = command[3].trim().replace("\"", "");
+            insertBook(bookID, bookName, authorName, availabilityStatus);
+//            printBook(bookID);
+        }
+        if (line.startsWith("BorrowBook(") && line.endsWith(")")) {
+            String[] command = line.substring(11, line.length() - 1).split(", ");
+            int patronID = Integer.parseInt(command[0]);
+            int bookID = Integer.parseInt(command[1]);
+            int patronPriority = Integer.parseInt(command[2]);
+            borrowBook(patronID, bookID, patronPriority);
+//            printBook(bookID);
+        }
+        if (line.startsWith("PrintBook(") && line.endsWith(")")) {
+            String command = line.substring(10, line.length() - 1);
+            int bookID = Integer.parseInt(command);
+            printBook(bookID);
+        }
+        if (line.startsWith("PrintBooks(") && line.endsWith(")")) {
+            String[] command = line.substring(11, line.length() - 1).split(", ");
+            int bookID1 = Integer.parseInt(command[0]);
+            int bookID2 = Integer.parseInt(command[1]);
+            printBooks(bookID1, bookID2);
+        }
+        if (line.startsWith("ReturnBook(") && line.endsWith(")")) {
+            String[] command = line.substring(11, line.length() - 1).split(", ");
+            int patronID = Integer.parseInt(command[0]);
+            int bookID = Integer.parseInt(command[1]);
+            returnBook(patronID, bookID);
+        }
+        if (line.startsWith("Quit()")) {
+            quit();
+        }
     }
 
     public static void main(String[] args) {
+        if(args.length<1){
+            System.out.println("Please provide input file name!!!");
+            return;
+        }
         test t=new test();
-        t.insertBook(1,"book1","author1","Yes");
-        t.printBook(1);
-        t.borrowBook(101,1,1);
-        t.insertBook(2,"book2","author2","Yes");
-        t.borrowBook(102,1,2);
-        t.printBooks(1,2);
-        t.returnBook(101,1);
-        t.quit();
+        String fileName=args[0]+".txt";
+        try {
+            File file = new File(fileName);
+            Scanner sc = new Scanner(file);
+            String line;
+            while (sc.hasNextLine()) {
+                line = sc.nextLine();
+                t.chooseFunction(line);
+            }
+        }catch (Exception e) {
+            System.out.println("File not found");
+            e.printStackTrace();
+//        t.testIntance(t);
+        }
     }
 }
 
