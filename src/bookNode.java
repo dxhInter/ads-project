@@ -48,47 +48,49 @@ class RedBlackTree{
         root = nil;
     }
     //left ratation
-    private void leftRotate(bookNode x){
-        bookNode y=x.right;
-        x.right=y.left;
-        if(y.left!=null){
-            y.left.parent=x;
+    private void leftRotate(bookNode node){
+        bookNode temp = node.right;
+        node.right = temp.left;
+        if (temp.left != null) {
+            temp.left.parent = node;
         }
-        y.parent=x.parent;
-        if(checkNIL(x.parent)){
-            root=y;
-        }else {
-            if(x.parent.left==x)
-                x.parent.left=y;
-            else
-                x.parent.right=y;
+        temp.parent = node.parent;
+        if (node.parent == null) {
+            root = temp;
+        } else if (node == node.parent.left) {
+            node.parent.left = temp;
+        } else {
+            node.parent.right = temp;
         }
-        y.left=x;
-        x.parent=y;
+        temp.left = node;
+        node.parent = temp;
     }
-    private void rightRotate(bookNode y){
-        bookNode x=y.left;
-        y.left=x.right;
-        if(x.right!=null){
-            x.right.parent=y;
+    private void rightRotate(bookNode node){
+        bookNode temp = node.left;
+        node.left = temp.right;
+        if (temp.right != null) {
+            temp.right.parent = node;
         }
-        x.parent=y.parent;
-        if(checkNIL(y.parent)) {
-            root = x;
-        }else {
-            if (y.parent.right == y) {
-                y.parent.right = x;
-            } else {
-                y.parent.left = x;
-            }
+        temp.parent = node.parent;
+        if (node.parent == null) {
+            root = temp;
+        } else if (node == node.parent.right) {
+            node.parent.right = temp;
+        } else {
+            node.parent.left = temp;
         }
-        x.right=y;
-        y.parent=x;
+        temp.right = node;
+        node.parent = temp;
     }
     public void insert(bookNode z){
+        if (this.root == null) {
+            this.root = z;
+            this.root.color = Color.BLACK;
+            return;
+        }
         bookNode y=nil;
-        bookNode x=root;
-        while(!checkNIL(root)){
+        bookNode x=this.root;
+        while(!checkNIL(x)){
             y=x;
             if(z.bookID<x.bookID){
                 x=x.left;
@@ -111,62 +113,132 @@ class RedBlackTree{
         z.color=Color.RED;
         insertFix(z);
     }
+    private void fixViolations(bookNode node) {
+        bookNode parent = null;
+        bookNode grandParent = null;
+        while (node != root && node.color != Color.BLACK && node.parent.color == Color.RED) {
+            parent = node.parent;
+            grandParent = parent.parent;
+            if (parent == grandParent.left) {
+                bookNode uncle = grandParent.right;
+                if (uncle != null && uncle.color == Color.RED) {
+                    grandParent.color = Color.RED;
+                    parent.color = Color.BLACK;
+                    uncle.color = Color.BLACK;
+                    node = grandParent;
+                } else {
+                    if (node == parent.right) {
+                        leftRotate(parent);
+                        node = parent;
+                        parent = node.parent;
+                    }
+                    rightRotate(grandParent);
+                    Color tempColor = parent.color;
+                    parent.color = grandParent.color;
+                    grandParent.color = tempColor;
+                    node = parent;
+                }
+            } else {
+                bookNode uncle = grandParent.left;
+                if (uncle != null && uncle.color == Color.RED) {
+                    grandParent.color = Color.RED;
+                    parent.color = Color.BLACK;
+                    uncle.color = Color.BLACK;
+                    node = grandParent;
+                } else {
+                    if (node == parent.left) {
+                        rightRotate(parent);
+                        node = parent;
+                        parent = node.parent;
+                    }
+                    leftRotate(grandParent);
+                    Color tempColor = parent.color;
+                    parent.color = grandParent.color;
+                    grandParent.color = tempColor;
+                    node = parent;
+                }
+            }
+        }
+        root.color = Color.BLACK;
+    }
     private void insertFix(bookNode k){
-        bookNode gparent;
-        while(!checkNIL(k.parent)&&k.parent.color==Color.RED){
-            gparent=k.parent.parent;
-            if(k.parent==gparent.left){
+        bookNode parent=null;
+        bookNode gparent=null;
+        while(checkNIL(k.parent)&&k.parent.color==Color.RED&&k.color!=Color.BLACK){
+            parent=k.parent;
+            gparent=parent.parent;
+            if(parent==gparent.left){
                 bookNode uncle=gparent.right;
                 if(!checkNIL(uncle)&&uncle.color==Color.RED){
+                    //case 1, uncle is red, flip color
                     uncle.color=Color.BLACK;
                     countFlipColor++;
-                    k.parent.color=Color.BLACK;
+                    parent.color=Color.BLACK;
                     countFlipColor++;
                     gparent.color=Color.RED;
-                    k=gparent;
+                    k=gparent;//move k to gparent
                 } else {
-                    if(k.parent.right==k){
-                        k=k.parent;
+                    //case 2, uncle is black and k is right child, left rotate
+                    if(k==parent.right){
                         leftRotate(k);
+                        k=parent;
+                        parent=k.parent;
                     }
-                    k.parent.color=Color.BLACK;
+                    //case 3, uncle is black and k is left child, right rotate
+                    rightRotate(gparent);
+//                    Color tmp=parent.color;
+                    parent.color=Color.BLACK;
                     countFlipColor++;
                     gparent.color=Color.RED;
                     countFlipColor++;
-                    rightRotate(gparent);
+                    k=parent;
                 }
             }else{
                 bookNode uncle=gparent.left;
-                if(!checkNIL(uncle)&&uncle.color==Color.RED){
+                if(checkNIL(uncle)&&uncle.color==Color.RED){
                     uncle.color=Color.BLACK;
                     countFlipColor++;
-                    k.parent.color=Color.BLACK;
+                    parent.color=Color.BLACK;
                     countFlipColor++;
                     gparent.color=Color.RED;
                     k=gparent;
                 }else{
-                    if(k.parent.left==k){
-                        k=k.parent;
+                    if(k==parent.left){
                         rightRotate(k);
+                        k=parent;
+                        parent=k.parent;
                     }
-                    k.parent.color=Color.BLACK;
+                    rightRotate(gparent);
+//                    Color tmp=parent.color;
+                    parent.color=Color.BLACK;
                     countFlipColor++;
                     gparent.color=Color.RED;
                     countFlipColor++;
-                    leftRotate(gparent);
+                    k=parent;
                 }
             }
-            if (root.color == Color.RED) {
-                root.color = Color.BLACK;
-                countFlipColor++;
-            }
+            root.color = Color.BLACK;
+            countFlipColor++;
+        }
+    }
+    public bookNode search(int bookID) {
+        return searchTree(this.root, bookID);
+    }
+    private bookNode searchTree(bookNode node, int bookID){
+        if(node==null||node.bookID==bookID){
+            return node;
+        }
+        if(bookID<node.bookID){
+            return searchTree(node.left,bookID);
+        }else {
+            return searchTree(node.right,bookID);
         }
     }
     public int getCountFlipColor(){
         return countFlipColor;
     }
-    public boolean checkNIL(bookNode root){
-        return root==nil;
+    public boolean checkNIL(bookNode node){
+        return node==nil;
     }
 }
 

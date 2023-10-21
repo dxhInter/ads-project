@@ -10,24 +10,42 @@ import java.util.Objects;
  */
 
 public class test {
-    private bookNode root;
+    private static RedBlackTree rbt;
+
+    public test() {
+        this.rbt = new RedBlackTree();
+    }
+
     public void insertBook(int bookID, String bookName, String authorName){
         bookNode newNode=new bookNode(bookID,bookName,authorName);
-        RedBlackTree rbt=new RedBlackTree();
+//        RedBlackTree rbt=new RedBlackTree();
         rbt.insert(newNode);
+//        printDetails(newNode);
     }
-    private bookNode searchBook(bookNode node, int bookID){
-        if(node==null||node.bookID==bookID){
-            return node;
-        }
-        if(bookID<node.bookID){
-            return searchBook(node.left,bookID);
+
+    private void borrowBook(int patronID, int bookID, int patronPriority){
+        bookNode tmp=rbt.search(bookID);
+        if(tmp!=null){
+            if(tmp.availabilityStatus.equals("Yes")) {
+                tmp.availabilityStatus = "No";
+                tmp.borrowedBy = patronID;
+                System.out.println("Book " + bookID + " Borrowed by Patron " + patronID);
+            }else{
+                if(tmp.minHeap.size<20){
+                    long currentTime=System.currentTimeMillis();
+                    reservation newReservation=new reservation(patronID,patronPriority,currentTime);
+                    tmp.minHeap.insert(newReservation);
+                }else {
+                    System.out.println("Reservation list for Book " + bookID + " is full. Cannot reserve for Patron " + patronID);
+                }
+            }
         }else {
-            return searchBook(node.right,bookID);
+            System.out.println("Book borrowed not found in the Library");
         }
     }
+
     public void printBook(int bookID){
-        bookNode tmp=searchBook(root,bookID);
+        bookNode tmp=rbt.search(bookID);
         if(tmp==null){
             System.out.println("BookID not found in the Library");
         }else {
@@ -35,37 +53,47 @@ public class test {
         }
     }
 
-    private void printDetails(bookNode node){
-        System.out.println("BookID: "+node.bookID);
-        System.out.println("BookName: "+node.bookName);
-        System.out.println("AuthorName: "+node.authorName);
-        System.out.println("Availability: " + (Objects.equals(node.availabilityStatus, "YES") ? "Yes" : "No"));
+    private static void printDetails(bookNode node){
+        System.out.println("BookID = "+node.bookID);
+        System.out.println("Title = "+node.bookName);
+        System.out.println("Author = "+node.authorName);
+        System.out.println("Availability = " + (Objects.equals(node.availabilityStatus, "Yes") ? "Yes" : "No"));
         if(node.borrowedBy!=-1){
-            System.out.println("BorrowedBy: "+node.borrowedBy);
+            System.out.println("BorrowedBy = "+node.borrowedBy);
         }else {
-            System.out.println("BorrowedBy"+"");
+            System.out.println("BorrowedBy ="+"");
         }
-        System.out.println("ReservationHeap: ");
+        System.out.print("ReservationHeap = ");
         if(node.minHeap!=null&&!node.minHeap.isEmpty()){
-            System.out.println("[");
+            System.out.print("[");
             int n=node.minHeap.size;
-            for(int i=0;i<n;i++){
-                System.out.println(node.minHeap.heap[i].patronID+",");
+            for(int i=0;i<n-1;i++){
+                System.out.print(node.minHeap.heap[i].patronID+",");
             }
-            System.out.println("]");
+            System.out.print(node.minHeap.heap[n-1].patronID);
+            System.out.print("]");
         }else {
             System.out.println("[]");
         }
     }
-    public static void quit() {
+    public void quit() {
         System.out.println("Program Terminated!!");
     }
 
     public static void main(String[] args) {
         test t=new test();
         t.insertBook(1,"book1","author1");
+        t.insertBook(2,"book2","author2");
+        t.borrowBook(1,1,1);
+        t.borrowBook(2,1,2);
+        t.borrowBook(3,1,1);
         t.printBook(1);
-        quit();
+        t.borrowBook(4,2,2);
+        t.borrowBook(12,2,2);
+        t.borrowBook(14,2,1);
+        t.borrowBook(15,2,2);
+        t.printBook(2);
+        t.quit();
     }
 }
 
