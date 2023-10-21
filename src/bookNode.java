@@ -25,6 +25,7 @@ public class bookNode {
     int borrowedBy;
     Color color;
     bookNode left, right, parent;
+    reservationHeap minHeap;
     public bookNode(int bookID,String bookName,String authorName){
         this.bookID = bookID;
         this.bookName = bookName;
@@ -32,6 +33,7 @@ public class bookNode {
         this.availabilityStatus = "Yes";
         this.borrowedBy = -1;
         this.color = Color.RED;
+        this.minHeap = new reservationHeap();
         this.left = null;
         this.right = null;
         this.parent = null;
@@ -39,6 +41,7 @@ public class bookNode {
 }
 class RedBlackTree{
     private bookNode root;
+    private int countFlipColor =0;
     private static bookNode nil = new bookNode(-1,"","");
     static {nil.color=Color.BLACK;}
     public RedBlackTree(){
@@ -82,7 +85,7 @@ class RedBlackTree{
         x.right=y;
         y.parent=x;
     }
-    private void insert(bookNode z){
+    public void insert(bookNode z){
         bookNode y=nil;
         bookNode x=root;
         while(!checkNIL(root)){
@@ -116,7 +119,9 @@ class RedBlackTree{
                 bookNode uncle=gparent.right;
                 if(!checkNIL(uncle)&&uncle.color==Color.RED){
                     uncle.color=Color.BLACK;
+                    countFlipColor++;
                     k.parent.color=Color.BLACK;
+                    countFlipColor++;
                     gparent.color=Color.RED;
                     k=gparent;
                 } else {
@@ -125,14 +130,18 @@ class RedBlackTree{
                         leftRotate(k);
                     }
                     k.parent.color=Color.BLACK;
+                    countFlipColor++;
                     gparent.color=Color.RED;
+                    countFlipColor++;
                     rightRotate(gparent);
                 }
             }else{
                 bookNode uncle=gparent.left;
                 if(!checkNIL(uncle)&&uncle.color==Color.RED){
                     uncle.color=Color.BLACK;
+                    countFlipColor++;
                     k.parent.color=Color.BLACK;
+                    countFlipColor++;
                     gparent.color=Color.RED;
                     k=gparent;
                 }else{
@@ -141,12 +150,20 @@ class RedBlackTree{
                         rightRotate(k);
                     }
                     k.parent.color=Color.BLACK;
+                    countFlipColor++;
                     gparent.color=Color.RED;
+                    countFlipColor++;
                     leftRotate(gparent);
                 }
             }
-            root.color=Color.BLACK;
+            if (root.color == Color.RED) {
+                root.color = Color.BLACK;
+                countFlipColor++;
+            }
         }
+    }
+    public int getCountFlipColor(){
+        return countFlipColor;
     }
     public boolean checkNIL(bookNode root){
         return root==nil;

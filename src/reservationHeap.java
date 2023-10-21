@@ -56,15 +56,17 @@ public class reservationHeap {
             heapify(smallest);
         }
     }
-
     public void swap(int i,int j){
         reservation temp = heap[i];
         heap[i] = heap[j];
         heap[j] = temp;
     }
+    public boolean isEmpty(){
+        return size == 0;
+    }
 }
 
-class reservation{
+class reservation implements Comparable<reservation>{
     int patronID;
     int priorityNumber;
     long timeOfReservation;
@@ -72,6 +74,14 @@ class reservation{
         this.patronID = patronID;
         this.priorityNumber = priorityNumber;
         this.timeOfReservation = System.nanoTime();
+    }
+    @Override
+    public int compareTo(reservation o) {
+        if(this.priorityNumber!=o.priorityNumber){
+            return this.priorityNumber-o.priorityNumber;//smaller number has higher priority
+        }else{
+            return Long.compare(this.timeOfReservation,o.timeOfReservation);//Ties need be broken by considering the timestamp
+        }
     }
 }
 
