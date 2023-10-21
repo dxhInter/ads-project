@@ -16,11 +16,9 @@ public class test {
         this.rbt = new RedBlackTree();
     }
 
-    public void insertBook(int bookID, String bookName, String authorName){
-        bookNode newNode=new bookNode(bookID,bookName,authorName);
-//        RedBlackTree rbt=new RedBlackTree();
+    public void insertBook(int bookID, String bookName, String authorName, String availabilityStatus) {
+        bookNode newNode=new bookNode(bookID,bookName,authorName,availabilityStatus);
         rbt.insert(newNode);
-//        printDetails(newNode);
     }
 
     private void borrowBook(int patronID, int bookID, int patronPriority){
@@ -30,11 +28,14 @@ public class test {
                 tmp.availabilityStatus = "No";
                 tmp.borrowedBy = patronID;
                 System.out.println("Book " + bookID + " Borrowed by Patron " + patronID);
+                System.out.println();
             }else{
                 if(tmp.minHeap.size<20){
                     long currentTime=System.currentTimeMillis();
                     reservation newReservation=new reservation(patronID,patronPriority,currentTime);
                     tmp.minHeap.insert(newReservation);
+                    System.out.println("Book " + bookID + " Reserved by Patron " + patronID);
+                    System.out.println();
                 }else {
                     System.out.println("Reservation list for Book " + bookID + " is full. Cannot reserve for Patron " + patronID);
                 }
@@ -43,7 +44,26 @@ public class test {
             System.out.println("Book borrowed not found in the Library");
         }
     }
-
+    private void returnBook(int patronID, int bookID) {
+        bookNode tmp = rbt.search(bookID);
+        if (tmp != null) {
+            if (tmp.availabilityStatus.equals("No") && tmp.borrowedBy == patronID) {
+                tmp.availabilityStatus = "Yes";
+                tmp.borrowedBy = -1;
+                System.out.println("Book " + bookID + " Returned by Patron " + patronID);
+                System.out.println();
+                if (!tmp.minHeap.isEmpty()) {
+                    reservation min = tmp.minHeap.extractMin();
+                    tmp.availabilityStatus = "No";
+                    tmp.borrowedBy = min.patronID;
+                    System.out.println("Book " + bookID + " Allotted by Patron " + min.patronID);
+                    System.out.println();
+                }
+            } else {
+                System.out.println("Book returned not found in the Library");
+            }
+        }
+    }
     public void printBook(int bookID){
         bookNode tmp=rbt.search(bookID);
         if(tmp==null){
@@ -52,7 +72,24 @@ public class test {
             printDetails(tmp);
         }
     }
-
+    public void printBooks(int bookID1, int bookID2){
+        bookNode root=rbt.getRoot();
+        printBooksHelper(root,bookID1,bookID2);
+    }
+    private void printBooksHelper(bookNode node,int bookID1,int bookID2){
+        if(node==null){
+            return;
+        }
+        if(node.bookID>bookID1){
+            printBooksHelper(node.left,bookID1,bookID2);
+        }
+        if(node.bookID>=bookID1&&node.bookID<=bookID2){
+            printDetails(node);
+        }
+        if(node.bookID<bookID2){
+            printBooksHelper(node.right,bookID1,bookID2);
+        }
+    }
     private static void printDetails(bookNode node){
         System.out.println("BookID = "+node.bookID);
         System.out.println("Title = "+node.bookName);
@@ -71,10 +108,11 @@ public class test {
                 System.out.print(node.minHeap.heap[i].patronID+",");
             }
             System.out.print(node.minHeap.heap[n-1].patronID);
-            System.out.print("]");
+            System.out.println("]");
         }else {
             System.out.println("[]");
         }
+        System.out.println();
     }
     public void quit() {
         System.out.println("Program Terminated!!");
@@ -82,17 +120,13 @@ public class test {
 
     public static void main(String[] args) {
         test t=new test();
-        t.insertBook(1,"book1","author1");
-        t.insertBook(2,"book2","author2");
-        t.borrowBook(1,1,1);
-        t.borrowBook(2,1,2);
-        t.borrowBook(3,1,1);
+        t.insertBook(1,"book1","author1","Yes");
         t.printBook(1);
-        t.borrowBook(4,2,2);
-        t.borrowBook(12,2,2);
-        t.borrowBook(14,2,1);
-        t.borrowBook(15,2,2);
-        t.printBook(2);
+        t.borrowBook(101,1,1);
+        t.insertBook(2,"book2","author2","Yes");
+        t.borrowBook(102,1,2);
+        t.printBooks(1,2);
+        t.returnBook(101,1);
         t.quit();
     }
 }
