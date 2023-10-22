@@ -14,9 +14,12 @@ import static java.lang.System.exit;
 
 public class test {
     private static RedBlackTree rbt;
+    private static String fileInName;
+    private static String fileOutName;
+    private static FileWriter myWriter;
 
     public test() {
-        this.rbt = new RedBlackTree();
+        rbt = new RedBlackTree();
     }
 
     public void insertBook(int bookID, String bookName, String authorName, String availabilityStatus) {
@@ -30,17 +33,18 @@ public class test {
             if(tmp.availabilityStatus.equals("Yes")) {
                 tmp.availabilityStatus = "No";
                 tmp.borrowedBy = patronID;
-                System.out.println("Book " + bookID + " Borrowed by Patron " + patronID);
-                System.out.println();
+//                System.out.println("Book " + bookID + " Borrowed by Patron " + patronID);
+                writeInFile("Book " + bookID + " Borrowed by Patron " + patronID);
             }else{
                 if(tmp.minHeap.size<20){
                     long currentTime=System.currentTimeMillis();
                     reservation newReservation=new reservation(patronID,patronPriority,currentTime);
                     tmp.minHeap.insert(newReservation);
-                    System.out.println("Book " + bookID + " Reserved by Patron " + patronID);
-                    System.out.println();
+//                    System.out.println("Book " + bookID + " Reserved by Patron " + patronID);
+                    writeInFile("Book " + bookID + " Reserved by Patron " + patronID);
                 }else {
-                    System.out.println("Reservation list for Book " + bookID + " is full. Cannot reserve for Patron " + patronID);
+//                    System.out.println("Reservation list for Book " + bookID + " is full. Cannot reserve for Patron " + patronID);
+                    writeInFile("Reservation list for Book " + bookID + " is full. Cannot reserve for Patron " + patronID);
                 }
             }
         }else {
@@ -53,14 +57,14 @@ public class test {
             if (tmp.availabilityStatus.equals("No") && tmp.borrowedBy == patronID) {
                 tmp.availabilityStatus = "Yes";
                 tmp.borrowedBy = -1;
-                System.out.println("Book " + bookID + " Returned by Patron " + patronID);
-                System.out.println();
+//                System.out.println("Book " + bookID + " Returned by Patron " + patronID);
+                writeInFile("Book " + bookID + " Returned by Patron " + patronID);
                 if (!tmp.minHeap.isEmpty()) {
                     reservation min = tmp.minHeap.extractMin();
                     tmp.availabilityStatus = "No";
                     tmp.borrowedBy = min.patronID;
-                    System.out.println("Book " + bookID + " Allotted by Patron " + min.patronID);
-                    System.out.println();
+//                    System.out.println("Book " + bookID + " Allotted by Patron " + min.patronID);
+                    writeInFile("Book " + bookID + " Allotted by Patron " + min.patronID);
                 }
             } else {
                 System.out.println("Book returned not found in the Library");
@@ -117,13 +121,77 @@ public class test {
         }
         System.out.println();
     }
+    public void writeBook(int bookID){
+        bookNode tmp=rbt.search(bookID);
+        if(tmp==null){
+            writeInFile("BookID not found in the Library");
+        }else {
+            writeBookDetails(tmp);
+        }
+    }
+    public void writeBooks(int bookID1, int bookID2){
+        bookNode root=rbt.getRoot();
+        writeBooksHelper(root,bookID1,bookID2);
+    }
+    public void writeBooksHelper(bookNode node,int bookID1,int bookID2){
+        if(node==null){
+            return;
+        }
+        if(node.bookID>bookID1){
+            writeBooksHelper(node.left,bookID1,bookID2);
+        }
+        if(node.bookID>=bookID1&&node.bookID<=bookID2){
+            writeBookDetails(node);
+        }
+        if(node.bookID<bookID2){
+            writeBooksHelper(node.right,bookID1,bookID2);
+        }
+    }
+    public void writeBookDetails(bookNode node){
+        StringBuilder sb=new StringBuilder();
+        sb.append("BookID = ").append(node.bookID).append("\n");
+        sb.append("Title = \"").append(node.bookName).append("\"\n");
+        sb.append("Author = \"").append(node.authorName).append("\"\n");
+        sb.append("Availability = \"").append((Objects.equals(node.availabilityStatus, "Yes") ? "Yes" : "No")).append("\"\n");
+        if(node.borrowedBy!=-1) {
+            sb.append("BorrowedBy = ").append(node.borrowedBy).append("\n");
+        }else {
+            sb.append("BorrowedBy = ").append("None").append("\n");
+        }
+        sb.append("ReservationHeap = ");
+        if(node.minHeap!=null&&!node.minHeap.isEmpty()) {
+            sb.append("[");
+            int n = node.minHeap.size;
+            for (int i = 0; i < n - 1; i++) {
+                sb.append(node.minHeap.heap[i].patronID).append(",");
+            }
+            sb.append(node.minHeap.heap[n - 1].patronID);
+            sb.append("]");
+        }else {
+            sb.append("[]");
+        }
+        writeInFile(sb.toString());
+    }
+
+    public void writeInFile(String content){
+        try {
+            myWriter = new FileWriter(fileOutName,true);
+            myWriter.write(content+"\n");
+            myWriter.write("\n");
+            myWriter.close();
+        }catch (Exception e) {
+            System.out.println("output File not found");
+            e.printStackTrace();
+        }
+    }
     public void findClosestBook(int targetID){
         bookNode cur=rbt.getRoot();
         bookNode closestLeft=null;
         bookNode closestRight=null;
         while(cur!=null){
             if(cur.bookID==targetID){
-                printDetails(cur);
+//                printDetails(cur);
+                writeBookDetails(cur);
                 return;
             }
             if(cur.bookID<targetID){
@@ -137,18 +205,23 @@ public class test {
             }
         }
         if(closestLeft==null&&closestRight!=null){
-            printBook(closestRight.bookID);
+//            printBook(closestRight.bookID);
+            writeBook(closestRight.bookID);
         }else if(closestLeft!=null&&closestRight==null) {
-            printBook(closestLeft.bookID);
+//            printBook(closestLeft.bookID);
+            writeBook(closestLeft.bookID);
         }else {
-            printBooks(closestLeft.bookID,closestRight.bookID);
+//            printBooks(closestLeft.bookID,closestRight.bookID);
+            writeBooks(closestLeft.bookID,closestRight.bookID);
         }
     }
-    public void quit() {
-        System.out.println("Program Terminated!!");
+    public void quit() throws IOException {
+        myWriter = new FileWriter(fileOutName,true);
+        myWriter.write("Program Terminated!!");
+        myWriter.close();
         exit(0);
     }
-    public void testIntance(test temp){
+    public void testIntance(test temp) throws IOException {
         temp.insertBook(4,"book4","author1","Yes");
         temp.insertBook(2,"book2","author2","Yes");
         temp.insertBook(5,"book5","author7","Yes");
@@ -157,7 +230,7 @@ public class test {
         temp.findClosestBook(3);
         temp.quit();
     }
-    public void chooseFunction(String line){
+    public void chooseFunction(String line) throws IOException {
         if(line.startsWith("InsertBook(")&&line.endsWith(")")) {
             String[] command = line.substring(11, line.length() - 1).split(", ");
             int bookID = Integer.parseInt(command[0].trim());
@@ -165,7 +238,6 @@ public class test {
             String authorName = command[2].trim().replace("\"", "");
             String availabilityStatus = command[3].trim().replace("\"", "");
             insertBook(bookID, bookName, authorName, availabilityStatus);
-//            printBook(bookID);
         }
         if (line.startsWith("BorrowBook(") && line.endsWith(")")) {
             String[] command = line.substring(11, line.length() - 1).split(", ");
@@ -173,19 +245,21 @@ public class test {
             int bookID = Integer.parseInt(command[1]);
             int patronPriority = Integer.parseInt(command[2]);
             borrowBook(patronID, bookID, patronPriority);
-//            printBook(bookID);
         }
         if (line.startsWith("PrintBook(") && line.endsWith(")")) {
             String command = line.substring(10, line.length() - 1);
             int bookID = Integer.parseInt(command);
-            printBook(bookID);
+            writeBook(bookID);
         }
+
         if (line.startsWith("PrintBooks(") && line.endsWith(")")) {
             String[] command = line.substring(11, line.length() - 1).split(", ");
             int bookID1 = Integer.parseInt(command[0]);
             int bookID2 = Integer.parseInt(command[1]);
-            printBooks(bookID1, bookID2);
+//            printBooks(bookID1, bookID2);
+            writeBooks(bookID1,bookID2);
         }
+
         if (line.startsWith("ReturnBook(") && line.endsWith(")")) {
             String[] command = line.substring(11, line.length() - 1).split(", ");
             int patronID = Integer.parseInt(command[0]);
@@ -208,10 +282,11 @@ public class test {
             return;
         }
         test t=new test();
-        String fileName=args[0]+".txt";
+        fileInName=args[0]+".txt";
+        fileOutName=fileInName+"_output_file.txt";
         try {
-            File file = new File(fileName);
-            Scanner sc = new Scanner(file);
+            File inFile = new File(fileInName);
+            Scanner sc = new Scanner(inFile);
             String line;
             while (sc.hasNextLine()) {
                 line = sc.nextLine();
