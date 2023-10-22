@@ -113,54 +113,6 @@ class RedBlackTree{
         z.color=Color.RED;
         insertFix(z);
     }
-//    private void fixViolations(bookNode node) {
-//        bookNode parent = null;
-//        bookNode grandParent = null;
-//        while (node != root && node.color != Color.BLACK && node.parent.color == Color.RED) {
-//            parent = node.parent;
-//            grandParent = parent.parent;
-//            if (parent == grandParent.left) {
-//                bookNode uncle = grandParent.right;
-//                if (uncle != null && uncle.color == Color.RED) {
-//                    grandParent.color = Color.RED;
-//                    parent.color = Color.BLACK;
-//                    uncle.color = Color.BLACK;
-//                    node = grandParent;
-//                } else {
-//                    if (node == parent.right) {
-//                        leftRotate(parent);
-//                        node = parent;
-//                        parent = node.parent;
-//                    }
-//                    rightRotate(grandParent);
-//                    Color tempColor = parent.color;
-//                    parent.color = grandParent.color;
-//                    grandParent.color = tempColor;
-//                    node = parent;
-//                }
-//            } else {
-//                bookNode uncle = grandParent.left;
-//                if (uncle != null && uncle.color == Color.RED) {
-//                    grandParent.color = Color.RED;
-//                    parent.color = Color.BLACK;
-//                    uncle.color = Color.BLACK;
-//                    node = grandParent;
-//                } else {
-//                    if (node == parent.left) {
-//                        rightRotate(parent);
-//                        node = parent;
-//                        parent = node.parent;
-//                    }
-//                    leftRotate(grandParent);
-//                    Color tempColor = parent.color;
-//                    parent.color = grandParent.color;
-//                    grandParent.color = tempColor;
-//                    node = parent;
-//                }
-//            }
-//        }
-//        root.color = Color.BLACK;
-//    }
     private void insertFix(bookNode k){
         bookNode parent=null;
         bookNode gparent=null;
@@ -240,8 +192,6 @@ class RedBlackTree{
     public boolean checkNIL(bookNode node){
         return node==nil;
     }
-    public bookNode getRoot(){
-        return root;
-    }
+    public bookNode getRoot(){ return root; }
 }
 

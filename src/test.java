@@ -117,18 +117,44 @@ public class test {
         }
         System.out.println();
     }
+    public void findClosestBook(int targetID){
+        bookNode cur=rbt.getRoot();
+        bookNode closestLeft=null;
+        bookNode closestRight=null;
+        while(cur!=null){
+            if(cur.bookID==targetID){
+                printDetails(cur);
+                return;
+            }
+            if(cur.bookID<targetID){
+                if(closestLeft==null||closestLeft.bookID<cur.bookID)
+                    closestLeft=cur;
+                cur=cur.right;
+            }else {
+                if (closestRight == null || closestRight.bookID > cur.bookID)
+                    closestRight=cur;
+                cur=cur.left;
+            }
+        }
+        if(closestLeft==null&&closestRight!=null){
+            printBook(closestRight.bookID);
+        }else if(closestLeft!=null&&closestRight==null) {
+            printBook(closestLeft.bookID);
+        }else {
+            printBooks(closestLeft.bookID,closestRight.bookID);
+        }
+    }
     public void quit() {
         System.out.println("Program Terminated!!");
         exit(0);
     }
     public void testIntance(test temp){
-        temp.insertBook(1,"book1","author1","Yes");
-        temp.printBook(1);
-        temp.borrowBook(101,1,1);
+        temp.insertBook(4,"book4","author1","Yes");
         temp.insertBook(2,"book2","author2","Yes");
-        temp.borrowBook(102,1,2);
-        temp.printBooks(1,2);
-        temp.returnBook(101,1);
+        temp.insertBook(5,"book5","author7","Yes");
+        temp.findClosestBook(3);
+        temp.insertBook(3,"book5","author7","Yes");
+        temp.findClosestBook(3);
         temp.quit();
     }
     public void chooseFunction(String line){
@@ -166,6 +192,11 @@ public class test {
             int bookID = Integer.parseInt(command[1]);
             returnBook(patronID, bookID);
         }
+        if(line.startsWith("FindClosestBook(")&&line.endsWith(")")){
+            String command = line.substring(16, line.length() - 1);
+            int bookID = Integer.parseInt(command);
+            findClosestBook(bookID);
+        }
         if (line.startsWith("Quit()")) {
             quit();
         }
@@ -189,8 +220,9 @@ public class test {
         }catch (Exception e) {
             System.out.println("File not found");
             e.printStackTrace();
-//        t.testIntance(t);
         }
+//        test t=new test();
+//        t.testIntance(t);
     }
 }
 
