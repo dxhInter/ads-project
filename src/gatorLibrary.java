@@ -242,6 +242,7 @@ public class gatorLibrary {
     }
     public void quit() throws IOException {
         print();
+        System.out.println(rbt.getCountFlipColor());
         myWriter = new FileWriter(fileOutName,true);
         myWriter.write("Program Terminated!!");
         myWriter.close();
