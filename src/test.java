@@ -1,7 +1,8 @@
-import java.util.*;
+import java.util.Objects;
+import java.util.Scanner;
 import java.io.*;
-
 import static java.lang.System.exit;
+
 
 /***
  *  1. PrintBook(bookID): Print information about a specific book identified by its unique bookID(e.g., title, author, availability status). Note*: If not found, Print “BookID not found in the Library”
@@ -124,7 +125,7 @@ public class test {
     public void writeBook(int bookID){
         bookNode tmp=rbt.search(bookID);
         if(tmp==null){
-            writeInFile("BookID not found in the Library");
+            writeInFile("BookID " +bookID+ " not found in the Library");
         }else {
             writeBookDetails(tmp);
         }
@@ -215,20 +216,45 @@ public class test {
             writeBooks(closestLeft.bookID,closestRight.bookID);
         }
     }
+    public void deleteBook(int bookID){
+        bookNode tmp=rbt.search(bookID);
+        if(tmp!=null) {
+            if (tmp.availabilityStatus.equals("Yes")) {
+                rbt.delete(tmp);
+                writeInFile("Book " + bookID + " is no longer available");
+            } else {
+                rbt.delete(tmp);
+                int size=tmp.minHeap.size;
+                int []patronIDs=new int[size];
+                for(int i=0;i<size;i++){
+                    patronIDs[i]=tmp.minHeap.extractMin().patronID;
+                }
+                StringBuilder sb=new StringBuilder();
+                for (int i=0;i<size;i++){
+                    if(i!=size-1)
+                        sb.append(patronIDs[i]).append(",");
+                    else
+                        sb.append(patronIDs[i]);
+                }
+                writeInFile("Book " + bookID + " is no longer available. Reservations made by Patrons "+sb+" have been cancelled!");
+            }
+        }
+    }
+    public int colorFilpCount(){
+        return rbt.getCountFlipColor();
+    }
     public void quit() throws IOException {
         myWriter = new FileWriter(fileOutName,true);
         myWriter.write("Program Terminated!!");
         myWriter.close();
         exit(0);
     }
-    public void testIntance(test temp) throws IOException {
+    public void testIntance(test temp) {
         temp.insertBook(4,"book4","author1","Yes");
-        temp.insertBook(2,"book2","author2","Yes");
-        temp.insertBook(5,"book5","author7","Yes");
-        temp.findClosestBook(3);
-        temp.insertBook(3,"book5","author7","Yes");
-        temp.findClosestBook(3);
-        temp.quit();
+        temp.insertBook(5,"book4","author1","Yes");
+        temp.deleteBook(4);
+        System.out.println("quit");
+//        temp.quit();
     }
     public void chooseFunction(String line) throws IOException {
         if(line.startsWith("InsertBook(")&&line.endsWith(")")) {
@@ -271,6 +297,17 @@ public class test {
             int bookID = Integer.parseInt(command);
             findClosestBook(bookID);
         }
+        if (line.startsWith("DeleteBook(") && line.endsWith(")")) {
+            String command = line.substring(11, line.length() - 1);
+            int bookID = Integer.parseInt(command);
+            deleteBook(bookID);
+        }
+        if (line.startsWith("ColorFlipCount()")) {
+            int count=colorFilpCount();
+            StringBuilder sb=new StringBuilder();
+            sb.append("Colour Flip Count: ").append(count);
+            writeInFile(String.valueOf(sb));
+        }
         if (line.startsWith("Quit()")) {
             quit();
         }
@@ -283,7 +320,7 @@ public class test {
         }
         test t=new test();
         fileInName=args[0]+".txt";
-        fileOutName=fileInName+"_output_file.txt";
+        fileOutName=args[0]+"_output_file.txt";
         try {
             File inFile = new File(fileInName);
             Scanner sc = new Scanner(inFile);

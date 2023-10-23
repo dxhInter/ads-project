@@ -23,7 +23,7 @@
  * For java:
  * $ java gatorLibrary file_name
  * Where file_name is the name of the file that has the input test data. Input and Output Requirements:
- * ● Read input from a text file where input_filename is specified as a command-line argument. ● All Output should be written to a text file having filename as concatenation of input_filename +“_”+"output_file.txt". (eg. inputFilename = ‘test1.txt’ , outputFilename = ‘test1_output_file.txt’)
+ * ● Read input from a text file where input_filename is specified as a command-line argument. ● All Output should be written to a text file having filename as concatenation of input_filename +“_”+"output_file.txt". (eg. inputFilename = ‘test3.txt’ , outputFilename = ‘test1_output_file.txt’)
  * ● The program should terminate when the operation encountered in the input file is Quit(). ● While Printing Reservation Heap, only print the PatronIDs as ordered in the Heap. ( Example 3)
  * Input Format
  * InsertBook(bookID, bookName, authorName, availabilityStatus)
