@@ -316,9 +316,9 @@ public class test {
     private void print(RBlackTree.BookNode tree, int bookID, int direction) {
         if(tree != null) {
 
-            if(direction==0)    // tree是根节点
+            if(direction==0)
                 System.out.printf("%2d(B) is root\n", tree.bookID);
-            else                // tree是分支节点
+            else
                 System.out.printf("%2d(%s) is %2d's %6s child\n", tree.bookID, tree.color==false?"R":"B", bookID, direction==1?"right" : "left");
 
             print(tree.left, tree.bookID, -1);

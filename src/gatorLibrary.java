@@ -18,7 +18,6 @@ public class gatorLibrary {
     }
 
     public void insertBook(int bookID, String bookName, String authorName, String availabilityStatus) {
-//        bookNode newNode= new bookNode(bookID,bookName,authorName,availabilityStatus);
         rbt.insertNode(bookID,bookName,authorName,availabilityStatus);
     }
 
