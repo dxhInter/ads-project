@@ -1,5 +1,4 @@
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 import java.io.*;
 import static java.lang.System.exit;
 
@@ -14,22 +13,22 @@ import static java.lang.System.exit;
  */
 
 public class test {
-    private static RedBlackTree rbt;
+    RBTree rbt;
     private static String fileInName;
     private static String fileOutName;
     private static FileWriter myWriter;
 
     public test() {
-        rbt = new RedBlackTree();
+        rbt = new RBTree();
     }
 
     public void insertBook(int bookID, String bookName, String authorName, String availabilityStatus) {
-        bookNode newNode=new bookNode(bookID,bookName,authorName,availabilityStatus);
-        rbt.insert(newNode);
+//        bookNode newNode= new bookNode(bookID,bookName,authorName,availabilityStatus);
+        rbt.insertNode(bookID,bookName,authorName,availabilityStatus);
     }
 
     private void borrowBook(int patronID, int bookID, int patronPriority){
-        bookNode tmp=rbt.search(bookID);
+        RBTree.bookNode tmp=rbt.searchID(bookID);
         if(tmp!=null){
             if(tmp.availabilityStatus.equals("Yes")) {
                 tmp.availabilityStatus = "No";
@@ -53,7 +52,7 @@ public class test {
         }
     }
     private void returnBook(int patronID, int bookID) {
-        bookNode tmp = rbt.search(bookID);
+        RBTree.bookNode tmp = rbt.searchID(bookID);
         if (tmp != null) {
             if (tmp.availabilityStatus.equals("No") && tmp.borrowedBy == patronID) {
                 tmp.availabilityStatus = "Yes";
@@ -73,7 +72,7 @@ public class test {
         }
     }
     public void printBook(int bookID){
-        bookNode tmp=rbt.search(bookID);
+        RBTree.bookNode tmp=rbt.searchID(bookID);
         if(tmp==null){
             System.out.println("BookID not found in the Library");
         }else {
@@ -81,10 +80,10 @@ public class test {
         }
     }
     public void printBooks(int bookID1, int bookID2){
-        bookNode root=rbt.getRoot();
+        RBTree.bookNode root=rbt.getRoot();
         printBooksHelper(root,bookID1,bookID2);
     }
-    private void printBooksHelper(bookNode node,int bookID1,int bookID2){
+    private void printBooksHelper(RBTree.bookNode node,int bookID1,int bookID2){
         if(node==null){
             return;
         }
@@ -98,7 +97,7 @@ public class test {
             printBooksHelper(node.right,bookID1,bookID2);
         }
     }
-    private static void printDetails(bookNode node){
+    private static void printDetails(RBTree.bookNode node){
         System.out.println("BookID = "+node.bookID);
         System.out.println("Title = \""+node.bookName+"\"");
         System.out.println("Author = \""+node.authorName+"\"");
@@ -123,7 +122,7 @@ public class test {
         System.out.println();
     }
     public void writeBook(int bookID){
-        bookNode tmp=rbt.search(bookID);
+        RBTree.bookNode tmp=rbt.searchID(bookID);
         if(tmp==null){
             writeInFile("BookID " +bookID+ " not found in the Library");
         }else {
@@ -131,10 +130,10 @@ public class test {
         }
     }
     public void writeBooks(int bookID1, int bookID2){
-        bookNode root=rbt.getRoot();
+        RBTree.bookNode root=rbt.getRoot();
         writeBooksHelper(root,bookID1,bookID2);
     }
-    public void writeBooksHelper(bookNode node,int bookID1,int bookID2){
+    public void writeBooksHelper(RBTree.bookNode node,int bookID1,int bookID2){
         if(node==null){
             return;
         }
@@ -148,7 +147,7 @@ public class test {
             writeBooksHelper(node.right,bookID1,bookID2);
         }
     }
-    public void writeBookDetails(bookNode node){
+    public void writeBookDetails(RBTree.bookNode node){
         StringBuilder sb=new StringBuilder();
         sb.append("BookID = ").append(node.bookID).append("\n");
         sb.append("Title = \"").append(node.bookName).append("\"\n");
@@ -186,9 +185,9 @@ public class test {
         }
     }
     public void findClosestBook(int targetID){
-        bookNode cur=rbt.getRoot();
-        bookNode closestLeft=null;
-        bookNode closestRight=null;
+        RBTree.bookNode cur=rbt.getRoot();
+        RBTree.bookNode closestLeft=null;
+        RBTree.bookNode closestRight=null;
         while(cur!=null){
             if(cur.bookID==targetID){
 //                printDetails(cur);
@@ -216,34 +215,35 @@ public class test {
             writeBooks(closestLeft.bookID,closestRight.bookID);
         }
     }
-    public void deleteBook(int bookID){
-        bookNode tmp=rbt.search(bookID);
-        if(tmp!=null) {
-            if (tmp.availabilityStatus.equals("Yes")) {
-                rbt.delete(tmp);
-                writeInFile("Book " + bookID + " is no longer available");
-            } else {
-                rbt.delete(tmp);
-                int size=tmp.minHeap.size;
-                int []patronIDs=new int[size];
-                for(int i=0;i<size;i++){
-                    patronIDs[i]=tmp.minHeap.extractMin().patronID;
-                }
-                StringBuilder sb=new StringBuilder();
-                for (int i=0;i<size;i++){
-                    if(i!=size-1)
-                        sb.append(patronIDs[i]).append(",");
-                    else
-                        sb.append(patronIDs[i]);
-                }
-                writeInFile("Book " + bookID + " is no longer available. Reservations made by Patrons "+sb+" have been cancelled!");
-            }
-        }
-    }
-    public int colorFilpCount(){
-        return rbt.getCountFlipColor();
-    }
+//    public void deleteBook(int bookID){
+//        bookNode tmp=rbt.searchID(bookID);
+//        if(tmp!=null) {
+//            if (tmp.availabilityStatus.equals("Yes")) {
+//                rbt.delete(tmp);
+//                writeInFile("Book " + bookID + " is no longer available");
+//            } else {
+//                rbt.delete(tmp);
+//                int size=tmp.minHeap.size;
+//                int []patronIDs=new int[size];
+//                for(int i=0;i<size;i++){
+//                    patronIDs[i]=tmp.minHeap.extractMin().patronID;
+//                }
+//                StringBuilder sb=new StringBuilder();
+//                for (int i=0;i<size;i++){
+//                    if(i!=size-1)
+//                        sb.append(patronIDs[i]).append(",");
+//                    else
+//                        sb.append(patronIDs[i]);
+//                }
+//                writeInFile("Book " + bookID + " is no longer available. Reservations made by Patrons "+sb+" have been cancelled!");
+//            }
+//        }
+//    }
+//    public int colorFilpCount(){
+//        return rbt.getCountFlipColor();
+//    }
     public void quit() throws IOException {
+        print();
         myWriter = new FileWriter(fileOutName,true);
         myWriter.write("Program Terminated!!");
         myWriter.close();
@@ -251,8 +251,9 @@ public class test {
     }
     public void testIntance(test temp) {
         temp.insertBook(4,"book4","author1","Yes");
+        temp.insertBook(2,"book4","author1","Yes");
         temp.insertBook(5,"book4","author1","Yes");
-        temp.deleteBook(4);
+        temp.insertBook(3,"book4","author1","Yes");
         System.out.println("quit");
 //        temp.quit();
     }
@@ -297,20 +298,38 @@ public class test {
             int bookID = Integer.parseInt(command);
             findClosestBook(bookID);
         }
-        if (line.startsWith("DeleteBook(") && line.endsWith(")")) {
-            String command = line.substring(11, line.length() - 1);
-            int bookID = Integer.parseInt(command);
-            deleteBook(bookID);
-        }
-        if (line.startsWith("ColorFlipCount()")) {
-            int count=colorFilpCount();
-            StringBuilder sb=new StringBuilder();
-            sb.append("Colour Flip Count: ").append(count);
-            writeInFile(String.valueOf(sb));
-        }
+//        if (line.startsWith("DeleteBook(") && line.endsWith(")")) {
+//            String command = line.substring(11, line.length() - 1);
+//            int bookID = Integer.parseInt(command);
+//            deleteBook(bookID);
+//        }
+//        if (line.startsWith("ColorFlipCount()")) {
+//            int count=colorFilpCount();
+//            StringBuilder sb=new StringBuilder();
+//            sb.append("Colour Flip Count: ").append(count);
+//            writeInFile(String.valueOf(sb));
+//        }
         if (line.startsWith("Quit()")) {
             quit();
         }
+    }
+    private void print(RBTree.bookNode tree, int bookID, int direction) {
+        if(tree != null) {
+
+            if(direction==0)    // tree是根节点
+                System.out.printf("%2d(B) is root\n", tree.bookID);
+            else                // tree是分支节点
+                System.out.printf("%2d(%s) is %2d's %6s child\n", tree.bookID, tree.color==false?"R":"B", bookID, direction==1?"right" : "left");
+
+            print(tree.left, tree.bookID, -1);
+            print(tree.right,tree.bookID,  1);
+        }
+    }
+
+    public void print() {
+        RBTree.bookNode mRoot=rbt.getRoot();
+        if (mRoot != null)
+            print(mRoot, mRoot.bookID, 0);
     }
 
     public static void main(String[] args) {
@@ -335,6 +354,7 @@ public class test {
         }
 //        test t=new test();
 //        t.testIntance(t);
+//        t.print();
     }
 }
 
