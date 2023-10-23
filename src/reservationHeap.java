@@ -17,6 +17,14 @@ public class reservationHeap {
         heap = new reservation[MAX_SIZE];
         size = 0;
     }
+    public boolean contains(int patronID){
+        for(int i=0;i<size;i++){
+            if (heap[i].patronID==patronID){
+                return true;
+            }
+        }
+        return false;
+    }
     public void insert(reservation r){
         if(size == MAX_SIZE){
             System.out.println("Heap is full");
