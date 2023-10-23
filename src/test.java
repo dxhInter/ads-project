@@ -13,13 +13,13 @@ import static java.lang.System.exit;
  */
 
 public class test {
-    RBTree rbt;
+    RBlackTree rbt;
     private static String fileInName;
     private static String fileOutName;
     private static FileWriter myWriter;
 
     public test() {
-        rbt = new RBTree();
+        rbt = new RBlackTree();
     }
 
     public void insertBook(int bookID, String bookName, String authorName, String availabilityStatus) {
@@ -28,7 +28,7 @@ public class test {
     }
 
     private void borrowBook(int patronID, int bookID, int patronPriority){
-        RBTree.bookNode tmp=rbt.searchID(bookID);
+        RBlackTree.BookNode tmp=rbt.searchID(bookID);
         if(tmp!=null){
             if(tmp.availabilityStatus.equals("Yes")) {
                 tmp.availabilityStatus = "No";
@@ -52,7 +52,7 @@ public class test {
         }
     }
     private void returnBook(int patronID, int bookID) {
-        RBTree.bookNode tmp = rbt.searchID(bookID);
+        RBlackTree.BookNode tmp = rbt.searchID(bookID);
         if (tmp != null) {
             if (tmp.availabilityStatus.equals("No") && tmp.borrowedBy == patronID) {
                 tmp.availabilityStatus = "Yes";
@@ -72,7 +72,7 @@ public class test {
         }
     }
     public void printBook(int bookID){
-        RBTree.bookNode tmp=rbt.searchID(bookID);
+        RBlackTree.BookNode tmp=rbt.searchID(bookID);
         if(tmp==null){
             System.out.println("BookID not found in the Library");
         }else {
@@ -80,10 +80,10 @@ public class test {
         }
     }
     public void printBooks(int bookID1, int bookID2){
-        RBTree.bookNode root=rbt.getRoot();
+        RBlackTree.BookNode root=rbt.getRoot();
         printBooksHelper(root,bookID1,bookID2);
     }
-    private void printBooksHelper(RBTree.bookNode node,int bookID1,int bookID2){
+    private void printBooksHelper(RBlackTree.BookNode node,int bookID1,int bookID2){
         if(node==null){
             return;
         }
@@ -97,7 +97,7 @@ public class test {
             printBooksHelper(node.right,bookID1,bookID2);
         }
     }
-    private static void printDetails(RBTree.bookNode node){
+    private static void printDetails(RBlackTree.BookNode node){
         System.out.println("BookID = "+node.bookID);
         System.out.println("Title = \""+node.bookName+"\"");
         System.out.println("Author = \""+node.authorName+"\"");
@@ -122,7 +122,7 @@ public class test {
         System.out.println();
     }
     public void writeBook(int bookID){
-        RBTree.bookNode tmp=rbt.searchID(bookID);
+        RBlackTree.BookNode tmp=rbt.searchID(bookID);
         if(tmp==null){
             writeInFile("BookID " +bookID+ " not found in the Library");
         }else {
@@ -130,10 +130,10 @@ public class test {
         }
     }
     public void writeBooks(int bookID1, int bookID2){
-        RBTree.bookNode root=rbt.getRoot();
+        RBlackTree.BookNode root=rbt.getRoot();
         writeBooksHelper(root,bookID1,bookID2);
     }
-    public void writeBooksHelper(RBTree.bookNode node,int bookID1,int bookID2){
+    public void writeBooksHelper(RBlackTree.BookNode node,int bookID1,int bookID2){
         if(node==null){
             return;
         }
@@ -147,7 +147,7 @@ public class test {
             writeBooksHelper(node.right,bookID1,bookID2);
         }
     }
-    public void writeBookDetails(RBTree.bookNode node){
+    public void writeBookDetails(RBlackTree.BookNode node){
         StringBuilder sb=new StringBuilder();
         sb.append("BookID = ").append(node.bookID).append("\n");
         sb.append("Title = \"").append(node.bookName).append("\"\n");
@@ -185,9 +185,9 @@ public class test {
         }
     }
     public void findClosestBook(int targetID){
-        RBTree.bookNode cur=rbt.getRoot();
-        RBTree.bookNode closestLeft=null;
-        RBTree.bookNode closestRight=null;
+        RBlackTree.BookNode cur=rbt.getRoot();
+        RBlackTree.BookNode closestLeft=null;
+        RBlackTree.BookNode closestRight=null;
         while(cur!=null){
             if(cur.bookID==targetID){
 //                printDetails(cur);
@@ -215,33 +215,33 @@ public class test {
             writeBooks(closestLeft.bookID,closestRight.bookID);
         }
     }
-//    public void deleteBook(int bookID){
-//        bookNode tmp=rbt.searchID(bookID);
-//        if(tmp!=null) {
-//            if (tmp.availabilityStatus.equals("Yes")) {
-//                rbt.delete(tmp);
-//                writeInFile("Book " + bookID + " is no longer available");
-//            } else {
-//                rbt.delete(tmp);
-//                int size=tmp.minHeap.size;
-//                int []patronIDs=new int[size];
-//                for(int i=0;i<size;i++){
-//                    patronIDs[i]=tmp.minHeap.extractMin().patronID;
-//                }
-//                StringBuilder sb=new StringBuilder();
-//                for (int i=0;i<size;i++){
-//                    if(i!=size-1)
-//                        sb.append(patronIDs[i]).append(",");
-//                    else
-//                        sb.append(patronIDs[i]);
-//                }
-//                writeInFile("Book " + bookID + " is no longer available. Reservations made by Patrons "+sb+" have been cancelled!");
-//            }
-//        }
-//    }
-//    public int colorFilpCount(){
-//        return rbt.getCountFlipColor();
-//    }
+    public void deleteBook(int bookID){
+        RBlackTree.BookNode tmp=rbt.searchID(bookID);
+        if(tmp!=null) {
+            if (tmp.availabilityStatus.equals("Yes")) {
+                rbt.delete(tmp);
+                writeInFile("Book " + bookID + " is no longer available");
+            } else {
+                rbt.delete(tmp);
+                int size=tmp.minHeap.size;
+                int []patronIDs=new int[size];
+                for(int i=0;i<size;i++){
+                    patronIDs[i]=tmp.minHeap.extractMin().patronID;
+                }
+                StringBuilder sb=new StringBuilder();
+                for (int i=0;i<size;i++){
+                    if(i!=size-1)
+                        sb.append(patronIDs[i]).append(",");
+                    else
+                        sb.append(patronIDs[i]);
+                }
+                writeInFile("Book " + bookID + " is no longer available. Reservations made by Patrons "+sb+" have been cancelled!");
+            }
+        }
+    }
+    public int colorFilpCount(){
+        return rbt.getCountFlipColor();
+    }
     public void quit() throws IOException {
         print();
         myWriter = new FileWriter(fileOutName,true);
@@ -298,22 +298,22 @@ public class test {
             int bookID = Integer.parseInt(command);
             findClosestBook(bookID);
         }
-//        if (line.startsWith("DeleteBook(") && line.endsWith(")")) {
-//            String command = line.substring(11, line.length() - 1);
-//            int bookID = Integer.parseInt(command);
-//            deleteBook(bookID);
-//        }
-//        if (line.startsWith("ColorFlipCount()")) {
-//            int count=colorFilpCount();
-//            StringBuilder sb=new StringBuilder();
-//            sb.append("Colour Flip Count: ").append(count);
-//            writeInFile(String.valueOf(sb));
-//        }
+        if (line.startsWith("DeleteBook(") && line.endsWith(")")) {
+            String command = line.substring(11, line.length() - 1);
+            int bookID = Integer.parseInt(command);
+            deleteBook(bookID);
+        }
+        if (line.startsWith("ColorFlipCount()")) {
+            int count=colorFilpCount();
+            StringBuilder sb=new StringBuilder();
+            sb.append("Colour Flip Count: ").append(count);
+            writeInFile(String.valueOf(sb));
+        }
         if (line.startsWith("Quit()")) {
             quit();
         }
     }
-    private void print(RBTree.bookNode tree, int bookID, int direction) {
+    private void print(RBlackTree.BookNode tree, int bookID, int direction) {
         if(tree != null) {
 
             if(direction==0)    // tree是根节点
@@ -327,7 +327,7 @@ public class test {
     }
 
     public void print() {
-        RBTree.bookNode mRoot=rbt.getRoot();
+        RBlackTree.BookNode mRoot=rbt.getRoot();
         if (mRoot != null)
             print(mRoot, mRoot.bookID, 0);
     }

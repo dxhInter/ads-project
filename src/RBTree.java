@@ -239,21 +239,6 @@ public class RBTree {
 //
 //        return y;
 //    }
-
-    /*
-     * 对红黑树的节点(x)进行左旋转
-     *
-     * 左旋示意图(对节点x进行左旋)：
-     *      px                              px
-     *     /                               /
-     *    x                               y
-     *   /  \      --(左旋)-.           / \                #
-     *  lx   y                          x  ry
-     *     /   \                       /  \
-     *    ly   ry                     lx  ly
-     *
-     *
-     */
     private void leftRotate(bookNode x) {
         // 设置x的右孩子为y
         bookNode y = x.right;
@@ -281,20 +266,6 @@ public class RBTree {
         // 将 “x的父节点” 设为 “y”
         x.parent = y;
     }
-
-    /*
-     * 对红黑树的节点(y)进行右旋转
-     *
-     * 右旋示意图(对节点y进行左旋)：
-     *            py                               py
-     *           /                                /
-     *          y                                x
-     *         /  \      --(右旋)-.            /  \                     #
-     *        x   ry                           lx   y
-     *       / \                                   / \                   #
-     *      lx  rx                                rx  ry
-     *
-     */
     private void rightRotate(bookNode y) {
         // 设置x是当前节点的左孩子。
         bookNode x = y.left;
@@ -694,7 +665,7 @@ public class RBTree {
             print(mRoot, mRoot.bookID, 0);
     }
 
-    private static final int a[] = {4,2,5,3};
+    private static final int a[] = {10, 40, 30, 60, 90, 70, 20, 50, 80};
     private static final boolean mDebugInsert = true;    // "插入"动作的检测开关(false，关闭；true，打开)
     private static final boolean mDebugDelete = false;    // "删除"动作的检测开关(false，关闭；true，打开)
 
