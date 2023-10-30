@@ -188,7 +188,8 @@ public class gatorLibrary {
         while(cur!=null){
             if(cur.bookID==targetID){
 //                printDetails(cur);
-                writeBookDetails(cur);
+//                writeBookDetails(cur);
+                writeInFile("Book "+cur.bookID+" is the closest book to book "+targetID);
                 return;
             }
             if(cur.bookID<targetID){
@@ -221,6 +222,11 @@ public class gatorLibrary {
             } else {
                 rbt.delete(tmp);
                 int size=tmp.minHeap.size;
+                if(size==0){
+                    int patronID=tmp.borrowedBy;
+                    writeInFile("Book " + bookID + " is no longer available. Reservations made by Patron "+patronID+" have been cancelled!");
+                    return;
+                }
                 int []patronIDs=new int[size];
                 for(int i=0;i<size;i++){
                     patronIDs[i]=tmp.minHeap.extractMin().patronID;
