@@ -27,7 +27,6 @@ public class gatorLibrary {
             if(tmp.availabilityStatus.equals("Yes")) {
                 tmp.availabilityStatus = "No";
                 tmp.borrowedBy = patronID;
-//                System.out.println("Book " + bookID + " Borrowed by Patron " + patronID);
                 writeInFile("Book " + bookID + " Borrowed by Patron " + patronID);
             }else{
                 if(tmp.minHeap.size<20){
@@ -40,7 +39,6 @@ public class gatorLibrary {
                         writeInFile("Book " + bookID + " Reserved by Patron " + patronID);
                     }
                 }else {
-//                    System.out.println("Reservation list for Book " + bookID + " is full. Cannot reserve for Patron " + patronID);
                     writeInFile("Reservation list for Book " + bookID + " is full. Cannot reserve for Patron " + patronID);
                 }
             }
@@ -54,13 +52,11 @@ public class gatorLibrary {
             if (tmp.availabilityStatus.equals("No") && tmp.borrowedBy == patronID) {
                 tmp.availabilityStatus = "Yes";
                 tmp.borrowedBy = -1;
-//                System.out.println("Book " + bookID + " Returned by Patron " + patronID);
                 writeInFile("Book " + bookID + " Returned by Patron " + patronID);
                 if (!tmp.minHeap.isEmpty()) {
                     reservation min = tmp.minHeap.extractMin();
                     tmp.availabilityStatus = "No";
                     tmp.borrowedBy = min.patronID;
-//                    System.out.println("Book " + bookID + " Allotted by Patron " + min.patronID);
                     writeInFile("Book " + bookID + " Allotted by Patron " + min.patronID);
                 }
             } else {
@@ -68,56 +64,7 @@ public class gatorLibrary {
             }
         }
     }
-    public void printBook(int bookID){
-        RBlackTree.BookNode tmp=rbt.searchID(bookID);
-        if(tmp==null){
-            System.out.println("BookID not found in the Library");
-        }else {
-            printDetails(tmp);
-        }
-    }
-    public void printBooks(int bookID1, int bookID2){
-        RBlackTree.BookNode root=rbt.getRoot();
-        printBooksHelper(root,bookID1,bookID2);
-    }
-    private void printBooksHelper(RBlackTree.BookNode node,int bookID1,int bookID2){
-        if(node==null){
-            return;
-        }
-        if(node.bookID>bookID1){
-            printBooksHelper(node.left,bookID1,bookID2);
-        }
-        if(node.bookID>=bookID1&&node.bookID<=bookID2){
-            printDetails(node);
-        }
-        if(node.bookID<bookID2){
-            printBooksHelper(node.right,bookID1,bookID2);
-        }
-    }
-    private static void printDetails(RBlackTree.BookNode node){
-        System.out.println("BookID = "+node.bookID);
-        System.out.println("Title = \""+node.bookName+"\"");
-        System.out.println("Author = \""+node.authorName+"\"");
-        System.out.println("Availability = \"" + (Objects.equals(node.availabilityStatus, "Yes") ? "Yes" : "No")+ "\"");
-        if(node.borrowedBy!=-1){
-            System.out.println("BorrowedBy = "+node.borrowedBy);
-        }else {
-            System.out.println("BorrowedBy = "+"None");
-        }
-        System.out.print("ReservationHeap = ");
-        if(node.minHeap!=null&&!node.minHeap.isEmpty()){
-            System.out.print("[");
-            int n=node.minHeap.size;
-            for(int i=0;i<n-1;i++){
-                System.out.print(node.minHeap.heap[i].patronID+",");
-            }
-            System.out.print(node.minHeap.heap[n-1].patronID);
-            System.out.println("]");
-        }else {
-            System.out.println("[]");
-        }
-        System.out.println();
-    }
+
     public void writeBook(int bookID){
         RBlackTree.BookNode tmp=rbt.searchID(bookID);
         if(tmp==null){
@@ -185,11 +132,11 @@ public class gatorLibrary {
         RBlackTree.BookNode cur=rbt.getRoot();
         RBlackTree.BookNode closestLeft=null;
         RBlackTree.BookNode closestRight=null;
+        RBlackTree.BookNode root=rbt.getRoot();
         while(cur!=null){
             if(cur.bookID==targetID){
 //                printDetails(cur);
-//                writeBookDetails(cur);
-                writeInFile("Book "+cur.bookID+" is the closest book to book "+targetID);
+                writeBookDetails(cur);
                 return;
             }
             if(cur.bookID<targetID){
@@ -203,28 +150,29 @@ public class gatorLibrary {
             }
         }
         if(closestLeft==null&&closestRight!=null){
-//            printBook(closestRight.bookID);
             writeBook(closestRight.bookID);
         }else if(closestLeft!=null&&closestRight==null) {
-//            printBook(closestLeft.bookID);
             writeBook(closestLeft.bookID);
         }else {
-//            printBooks(closestLeft.bookID,closestRight.bookID);
-            writeBooks(closestLeft.bookID,closestRight.bookID);
+            if (closestLeft==root){
+                writeBook(closestRight.bookID);
+            } else if (closestRight==root){
+                writeBook(closestLeft.bookID);
+            }else {
+                writeBooks(closestLeft.bookID, closestRight.bookID);
+            }
         }
     }
     public void deleteBook(int bookID){
         RBlackTree.BookNode tmp=rbt.searchID(bookID);
         if(tmp!=null) {
+            rbt.delete(tmp);
             if (tmp.availabilityStatus.equals("Yes")) {
-                rbt.delete(tmp);
                 writeInFile("Book " + bookID + " is no longer available");
             } else {
-                rbt.delete(tmp);
                 int size=tmp.minHeap.size;
                 if(size==0){
-                    int patronID=tmp.borrowedBy;
-                    writeInFile("Book " + bookID + " is no longer available. Reservations made by Patron "+patronID+" have been cancelled!");
+                    writeInFile("Book " + bookID + " is no longer available");
                     return;
                 }
                 int []patronIDs=new int[size];
@@ -243,6 +191,7 @@ public class gatorLibrary {
         }
     }
     public int colorFilpCount(){
+        print();
         return rbt.getCountFlipColor();
     }
     public void quit() throws IOException {
@@ -252,14 +201,6 @@ public class gatorLibrary {
         myWriter.write("Program Terminated!!");
         myWriter.close();
         exit(0);
-    }
-    public void testIntance(test temp) {
-        temp.insertBook(4,"book4","author1","Yes");
-        temp.insertBook(2,"book4","author1","Yes");
-        temp.insertBook(5,"book4","author1","Yes");
-        temp.insertBook(3,"book4","author1","Yes");
-        System.out.println("quit");
-//        temp.quit();
     }
     public void chooseFunction(String line) throws IOException {
         if(line.startsWith("InsertBook(")&&line.endsWith(")")) {
@@ -355,9 +296,6 @@ public class gatorLibrary {
             System.out.println("File not found");
             e.printStackTrace();
         }
-//        test t=new test();
-//        t.testIntance(t);
-//        t.print();
     }
 }
 

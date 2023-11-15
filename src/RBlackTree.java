@@ -6,7 +6,10 @@ public class RBlackTree {
     public RBlackTree(){
         root = null;
     }
-    public int getCountFlipColor() {return countFlipColor-1;} //minus root's color flip
+    public int getCountFlipColor() {
+        System.out.println("countFlipColor is"+countFlipColor);
+        return countFlipColor;
+    } //minus root's color flip
     public static class BookNode {
         int bookID;
         String bookName;
@@ -16,6 +19,9 @@ public class RBlackTree {
         boolean color;
         BookNode left, right, parent;
         reservationHeap minHeap;
+
+
+
         public BookNode(int bookID, String bookName, String authorName, String availabilityStatus){
             this.bookID = bookID;
             this.bookName = bookName;
@@ -38,27 +44,20 @@ public class RBlackTree {
         return node!=null ? node.parent : null;
     } //get parent of node
     private void setBlack(BookNode node) {
-        //if node is not null and node's color is red, flip color and count
-        if (node!=null) {
-            if (node.color == RED)
-                countFlipColor++;
+        //if node is null, set node's color to black
+        if (node!=null){
             node.color = BLACK;
         }
     }
     private void setRed(BookNode node) {
-        //if node is not null and node's color is black, flip color and count
-        if (node!=null) {
-            if (node.color == BLACK)
-                countFlipColor++;
+        //if node is null, set node's color to red
+        if (node!=null){
             node.color = RED;
         }
     }
     private boolean getColorOf(BookNode node) {return node!=null ? node.color : BLACK;}
     private void setColor(BookNode node, boolean color) {
         if (node!=null) {
-            if(node.color != color){
-                countFlipColor++;
-            }
             node.color = color;
         }
     }
@@ -131,51 +130,82 @@ public class RBlackTree {
     }
 
     private void insertFix(BookNode k){
-        BookNode parent,gparent;
-        while((parent = parentOf(k))!=null&& checkRed(parent)&&k.color!=BLACK){
-            //if parent is red, k is red and k is not root
-            System.out.println("flip color!!!");
-            gparent=parentOf(parent);
-            //if parent is left child
-            if(parent==gparent.left){
-                BookNode uncle=gparent.right;
-                //if uncle is red, flip color
-                if(uncle!=null&& checkRed(uncle)){
-                    //case 1, uncle is red, flip color
+        BookNode parent, gparent;
+        while((parent = parentOf(k)) != null && checkRed(parent) && k.color != BLACK){
+            gparent = parentOf(parent);
+            if(parent == gparent.left){
+                BookNode uncle = gparent.right;
+                if(uncle != null && checkRed(uncle)){
+                    // Case 1: Uncle is red, flip color
+                    if(parent.color == RED) {
+                        countFlipColor++;
+                    }
+                    if(uncle.color == RED) {
+                        countFlipColor++;
+                    }
+                    if(gparent.color == BLACK&&gparent!=this.root) {
+                        countFlipColor++;
+                    }
                     setBlack(uncle);
                     setBlack(parent);
                     setRed(gparent);
-                    k=gparent;//move k to gparent
+                    k = gparent;
                 } else {
-                    //case 2, uncle is black and k is right child, left rotate
-                    if(k==parent.right){
-                        BookNode tmp;
+                    boolean parentWasRed = (parent.color == RED);
+                    boolean gparentWasBlack = (gparent.color == BLACK);
+
+                    if(k == parent.right){
                         leftRotate(parent);
-                        tmp=parent;
-                        parent=k;
-                        k=tmp;
+                        BookNode tmp = parent;
+                        parent = k;
+                        k = tmp;
                     }
-                    //case 3, uncle is black and k is left child, right rotate
                     rightRotate(gparent);
+
+
+                    if(parentWasRed) {
+                        countFlipColor++;
+                    }
+                    if(gparentWasBlack) {
+                        countFlipColor++;
+                    }
                     setBlack(parent);
                     setRed(gparent);
                 }
-            }else{
-                BookNode uncle=gparent.left;
-                if(uncle!=null&& checkRed(uncle)){
+            } else {
+
+                BookNode uncle = gparent.left;
+                if (uncle != null && checkRed(uncle)) {
+                    if(parent.color == RED) {
+                        countFlipColor++;
+                    }
+                    if(uncle.color == RED) {
+                        countFlipColor++;
+                    }
+                    if(gparent.color == BLACK&&gparent!=this.root) {
+                        countFlipColor++;
+                    }
                     setBlack(uncle);
                     setBlack(parent);
                     setRed(gparent);
-                    k=gparent;
-                }else{
-                    if(k==parent.left){
+                    k = gparent;
+                } else {
+                    boolean parentWasRed = (parent.color == RED);
+                    boolean gparentWasBlack = (gparent.color == BLACK);
+                    if (k == parent.left) {
                         BookNode tmp;
                         rightRotate(parent);
-                        tmp=parent;
-                        parent=k;
-                        k=tmp;
+                        tmp = parent;
+                        parent = k;
+                        k = tmp;
                     }
                     leftRotate(gparent);
+                    if(parentWasRed) {
+                        countFlipColor++;
+                    }
+                    if(gparentWasBlack) {
+                        countFlipColor++;
+                    }
                     setBlack(parent);
                     setRed(gparent);
                 }
@@ -183,6 +213,7 @@ public class RBlackTree {
         }
         setBlack(this.root);
     }
+
     public void insertNode(int bookID, String bookName, String authorName, String availabilityStatus) {
         BookNode node=new BookNode(bookID,bookName,authorName,availabilityStatus);
         if (node != null)
@@ -217,6 +248,7 @@ public class RBlackTree {
                 // Case 1:x's brother is red
                     setBlack(brother);
                     setRed(parent);
+                    countFlipColor += 2;
                     leftRotate(parent);
                     brother = parent.right;
                 }
@@ -224,21 +256,24 @@ public class RBlackTree {
                     (brother.right==null || checkBlack(brother.right))) {
                 // Case 2: x's brother is black, and his children are black
                 setRed(brother);
+                countFlipColor++;
                 node = parent;
                 parent = parentOf(node);
             } else {
-
                 if (brother.right==null || checkBlack(brother.right)) {
                     // Case 3: x's brother is black, his left child is red, right child is black
                     setBlack(brother.left);
                     setRed(brother);
                     rightRotate(brother);
+                    countFlipColor += 2;
                     brother = parent.right;
                 }
                 // Case 4: x's brother is black, his right child is red, left child could be any color
-                setColor(brother, getColorOf(parent));
+                boolean colorOfParent = getColorOf(parent);
+                setColor(brother, colorOfParent);
                 setBlack(parent);
                 setBlack(brother.right);
+                countFlipColor += colorOfParent == RED ? 2 : 1;
                 leftRotate(parent);
                 node = this.root;
                 break;
@@ -249,6 +284,7 @@ public class RBlackTree {
                 // Case 1: x's brother is red
                 setBlack(brother);
                 setRed(parent);
+                countFlipColor += 2;
                 rightRotate(parent);
                 brother = parent.left;
             }
@@ -258,94 +294,121 @@ public class RBlackTree {
                 // Case 2: x's brother is black, and his children are black
                 setRed(brother);
                 node = parent;
+                countFlipColor++;
                 parent = parentOf(node);
             } else {
                 if (brother.left==null || checkBlack(brother.left)) {
                     // Case 3: x's brother is black, his right child is red, left child is black
                     setBlack(brother.right);
                     setRed(brother);
+                    countFlipColor += 2;
                     leftRotate(brother);
                     brother = parent.left;
                 }
                 // Case 4: x's brother is black, his left child is red, right child could be any color
-                setColor(brother, getColorOf(parent));
+                boolean colorOfParent = getColorOf(parent);
+                setColor(brother, colorOfParent);
                 setBlack(parent);
                 setBlack(brother.left);
+                countFlipColor += colorOfParent == RED ? 2 : 1;
                 rightRotate(parent);
                 node = this.root;
                 break;
             }
         }
     }
-    if (node!=null)
-        setBlack(node);
-}
+    if (node!=null){
+        if (node.color == RED) {
+            countFlipColor++;
+        }
+            setBlack(node);
+        }
+    }
+
     public void delete(BookNode node) {
         BookNode child, parent;
         boolean color;
-        // node's left child is not null and right child is not null
-        if ( (node.left!=null) && (node.right!=null) ) {
-            // find node's successor and replace it with node
-            BookNode replace = node;
-            // get node's successor
-            replace = replace.right;
-            while (replace.left != null)
-                replace = replace.left;
-            // node is not root, because only root's parent is null
-            if (parentOf(node)!=null) {
-                if (parentOf(node).left == node)
+
+        if ((node.left != null) && (node.right != null)) {
+            BookNode replace = node.left;
+            while (replace.right != null) {
+                replace = replace.right;
+            }
+
+
+            if (parentOf(node) != null) {
+                if (parentOf(node).left == node) {
                     parentOf(node).left = replace;
-                else
+                } else {
                     parentOf(node).right = replace;
+                }
             } else {
-                // node is root, replace is root
                 this.root = replace;
             }
-            // get successor's right child, which is the node that needs to be adjusted
-            // also successor's left child is null, because successor is the smallest node in the right subtree
-            child = replace.right;
+
+            child = replace.left;
             parent = parentOf(replace);
             color = getColorOf(replace);
-            // replace is node's right child
+
             if (parent == node) {
                 parent = replace;
             } else {
-                if (child!=null)
+                if (child != null) {
                     setParent(child, parent);
-                parent.left = child;
-                replace.right = node.right;
-                setParent(node.right, replace);
+                }
+                parent.right = child;
+
+                replace.left = node.left;
+                setParent(node.left, replace);
             }
+
             replace.parent = node.parent;
             replace.color = node.color;
-            replace.left = node.left;
-            node.left.parent = replace;
-            if (color == BLACK)
+            replace.right = node.right;
+            if (node.right != null) {
+                setParent(node.right, replace);
+            }
+
+            if (color == BLACK) {
                 removeFixUp(child, parent);
-            node = null;
-            return ;
-        }
-        if (node.left !=null) {
-            child = node.left;
+            }else {
+                if(node.color==BLACK){
+                    countFlipColor++;
+                }
+            }
         } else {
-            child = node.right;
+
+            if (node.left != null) {
+                child = node.left;
+            } else {
+                child = node.right;
+            }
+
+            parent = node.parent;
+            color = node.color;
+
+            if (child != null) {
+                child.parent = parent;
+            }
+
+            if (parent != null) {
+                if (parent.left == node) {
+                    parent.left = child;
+                } else {
+                    parent.right = child;
+                }
+            } else {
+                this.root = child;
+            }
+
+            if (color == BLACK) {
+
+                removeFixUp(child, parent);
+            }
         }
-        parent = node.parent;
-        color = node.color;
-        if (child!=null)
-            child.parent = parent;
-        if (parent!=null) {
-            if (parent.left == node)
-                parent.left = child;
-            else
-                parent.right = child;
-        } else {
-            this.root = child;
-        }
-        if (color == BLACK)
-            removeFixUp(child, parent);
         node = null;
     }
+
 
     private BookNode producer(BookNode node){
         if(node.left!=null){
@@ -373,40 +436,9 @@ public class RBlackTree {
             print(tree.right,tree.bookID,  1);
         }
     }
-
     public void print() {
         if (root != null)
             print(root, root.bookID, 0);
     }
-    private static final int a[] = {4,2,5,3};
-
-    public static void main(String[] args) {
-        int i, ilen = a.length;
-        RBlackTree tree = new RBlackTree();
-
-        System.out.printf("== 原始数据: ");
-        for (i = 0; i < ilen; i++)
-            System.out.printf("%d ", a[i]);
-        System.out.printf("\n");
-
-        for (i = 0; i < ilen; i++) {
-            tree.insertNode(a[i], "Book4", "Author1", "Yes");
-            // 设置mDebugInsert=true,测试"添加函数"
-            if (true) {
-                System.out.printf("== 添加节点: %d\n", a[i]);
-                System.out.printf("== 树的详细信息: \n");
-                tree.print();
-                System.out.printf("\n");
-            }
-        }
-        System.out.printf("== 树的详细信息: \n");
-        tree.print();
-        System.out.printf("\n");
-        if (true) {
-            tree.deleteTree(2);
-            System.out.printf("== 树的详细信息: \n");
-            tree.print();
-            System.out.printf("\n");
-        }
-    }
 }
+
