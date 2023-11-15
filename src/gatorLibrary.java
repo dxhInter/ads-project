@@ -17,10 +17,24 @@ public class gatorLibrary {
         rbt = new RBlackTree();
     }
 
+    /**
+     * insert a book into the library
+     * @param bookID
+     * @param bookName
+     * @param authorName
+     * @param availabilityStatus
+     */
     public void insertBook(int bookID, String bookName, String authorName, String availabilityStatus) {
         rbt.insertNode(bookID,bookName,authorName,availabilityStatus);
     }
 
+    /**
+     * borrow a book from the library, it depends on the availability of the book and the priority of the patron,
+     * and the size of the reservation list
+     * @param patronID
+     * @param bookID
+     * @param patronPriority
+     */
     private void borrowBook(int patronID, int bookID, int patronPriority){
         RBlackTree.BookNode tmp=rbt.searchID(bookID);
         if(tmp!=null){
@@ -46,6 +60,12 @@ public class gatorLibrary {
             System.out.println("Book borrowed not found in the Library");
         }
     }
+
+    /**
+     * return a book to the library, if heap is not null then it will be available for other patrons
+     * @param patronID
+     * @param bookID
+     */
     private void returnBook(int patronID, int bookID) {
         RBlackTree.BookNode tmp = rbt.searchID(bookID);
         if (tmp != null) {
@@ -64,7 +84,10 @@ public class gatorLibrary {
             }
         }
     }
-
+    /**
+     * write the details of a book into the output file
+     * @param bookID
+     */
     public void writeBook(int bookID){
         RBlackTree.BookNode tmp=rbt.searchID(bookID);
         if(tmp==null){
@@ -73,10 +96,23 @@ public class gatorLibrary {
             writeBookDetails(tmp);
         }
     }
+
+    /**
+     * write the details of books that in the range of two book IDs into the output file
+     * @param bookID1
+     * @param bookID2
+     */
     public void writeBooks(int bookID1, int bookID2){
         RBlackTree.BookNode root=rbt.getRoot();
         writeBooksHelper(root,bookID1,bookID2);
     }
+
+    /**
+     * find the range of two book IDs than write into the output file
+     * @param node
+     * @param bookID1
+     * @param bookID2
+     */
     public void writeBooksHelper(RBlackTree.BookNode node,int bookID1,int bookID2){
         if(node==null){
             return;
@@ -91,6 +127,11 @@ public class gatorLibrary {
             writeBooksHelper(node.right,bookID1,bookID2);
         }
     }
+
+    /**
+     * write the details of a book into the output file
+     * @param node
+     */
     public void writeBookDetails(RBlackTree.BookNode node){
         StringBuilder sb=new StringBuilder();
         sb.append("BookID = ").append(node.bookID).append("\n");
@@ -116,7 +157,10 @@ public class gatorLibrary {
         }
         writeInFile(sb.toString());
     }
-
+    /**
+     * write operation into the output file
+     * @param content
+     */
     public void writeInFile(String content){
         try {
             myWriter = new FileWriter(fileOutName,true);
@@ -128,6 +172,10 @@ public class gatorLibrary {
             e.printStackTrace();
         }
     }
+    /**
+     * find the closest book ID to the target book ID, except the root is processor or successor
+     * @param targetID
+     */
     public void findClosestBook(int targetID){
         RBlackTree.BookNode cur=rbt.getRoot();
         RBlackTree.BookNode closestLeft=null;
@@ -163,6 +211,11 @@ public class gatorLibrary {
             }
         }
     }
+    /**
+     * delete a book from the library, if the book is available, then delete it directly,
+     * if the book is not available, then delete it and cancel all the reservations
+     * @param bookID
+     */
     public void deleteBook(int bookID){
         RBlackTree.BookNode tmp=rbt.searchID(bookID);
         if(tmp!=null) {
@@ -190,10 +243,19 @@ public class gatorLibrary {
             }
         }
     }
+    /**
+     * get the number of color flips of the red-black tree
+     * @return
+     */
     public int colorFilpCount(){
         print();
         return rbt.getCountFlipColor();
     }
+
+    /**
+     * quit the program and any operations after quit will not be executed
+     * @throws IOException
+     */
     public void quit() throws IOException {
         print();
         System.out.println(rbt.getCountFlipColor());
@@ -202,6 +264,12 @@ public class gatorLibrary {
         myWriter.close();
         exit(0);
     }
+
+    /**
+     * choose the function from input file to execute
+     * @param line
+     * @throws IOException
+     */
     public void chooseFunction(String line) throws IOException {
         if(line.startsWith("InsertBook(")&&line.endsWith(")")) {
             String[] command = line.substring(11, line.length() - 1).split(", ");
