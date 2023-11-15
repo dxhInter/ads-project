@@ -181,6 +181,8 @@ public class gatorLibrary {
         RBlackTree.BookNode closestLeft=null;
         RBlackTree.BookNode closestRight=null;
         RBlackTree.BookNode root=rbt.getRoot();
+        int diffLeft=Integer.MAX_VALUE;
+        int diffRight=Integer.MAX_VALUE;
         while(cur!=null){
             if(cur.bookID==targetID){
 //                printDetails(cur);
@@ -207,7 +209,19 @@ public class gatorLibrary {
             } else if (closestRight==root){
                 writeBook(closestLeft.bookID);
             }else {
-                writeBooks(closestLeft.bookID, closestRight.bookID);
+                if (closestLeft != null) {
+                    diffLeft=Math.abs(closestLeft.bookID-targetID);
+                }
+                if (closestRight != null) {
+                    diffRight=Math.abs(closestRight.bookID-targetID);
+                }
+                if (diffLeft==diffRight) {
+                    writeBooks(closestLeft.bookID, closestRight.bookID);
+                }else if (diffLeft<diffRight) {
+                    writeBook(closestLeft.bookID);
+                }else {
+                    writeBook(closestRight.bookID);
+                }
             }
         }
     }
