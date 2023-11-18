@@ -521,15 +521,15 @@ public class RBlackTree {
                     }
                     // Case 4: x's brother is black, his left child is red, right child could be any color
                     boolean colorOfParent = getColorOf(parent);
-                    if (case3 && colorOfBrotherRight == RED && colorOfParent == RED) {
-                        countFlipColor--;
-                    }
+//                    if (case3 && colorOfBrotherRight == RED && colorOfParent == RED) {
+//                        countFlipColor--;
+//                    }
                     setColor(brother, colorOfParent);
                     setBlack(parent);
                     setBlack(brother.left);
-                    if (case3 && colorOfBrother == BLACK) {
-                        countFlipColor--;
-                    }
+//                    if (case3 && colorOfBrother == BLACK) {
+//                        countFlipColor--;
+//                    }
                     countFlipColor += colorOfParent == RED ? 2 : 1;
                     if (case3 && (colorOfBrother == BLACK && colorOfBrotherRight == RED)) {
                         countFlipColor--;
